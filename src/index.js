@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -16,6 +15,14 @@ form.addEventListener('submit', onSearchImg);
 let per_page = 40;
 let value = '';
 
+let galleryImg = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionPosition: 'bottom',
+  captionDelay: 250,
+  close: true,
+});
+galleryImg.refresh();
+
 btnSearch.onclick = () => {
   window.scrollTo({
     top: 0,
@@ -27,6 +34,12 @@ btnSearch.onclick = () => {
 function onSearchImg(event) {
   event.preventDefault();
   value = form.searchQuery.value;
+  if (value === '') {
+    clearImgGallery();
+    return Notiflix.Notify.failure(
+      'Oops...The search box is blank. Write something.'
+    );
+  }
   getImage(value)
     .then(data => {
       if (data.hits.length === 0) {
@@ -63,7 +76,8 @@ function createMarkup(obj) {
         views,
         comments,
         downloads,
-      }) => `<div class="photo-card">
+      }) => {
+        return `<div class="photo-card">
       <a href="${largeImageURL}">
       <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
     </a>
@@ -82,17 +96,10 @@ function createMarkup(obj) {
         </p>
       </div>
     </div>
-      `
+      `;
+      }
     )
     .join('');
 }
-
-let galleryImg = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionPosition: 'bottom',
-  captionDelay: 250,
-  close: true,
-});
-galleryImg.refresh();
 
 export { per_page, value, gallery, createMarkup, galleryImg, guard };
